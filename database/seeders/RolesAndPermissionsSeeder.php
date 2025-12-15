@@ -15,12 +15,15 @@ class RolesAndPermissionsSeeder extends Seeder
     /**
      * Run the database seeds.
      * 
-     * Crea roles, permisos y usuarios de ejemplo.
+     * Crea roles, permisos y usuarios de prueba.
      * 
-     * ESTRUCTURA:
-     * - Roles principales: admin, staff, public
-     * - Categorías de staff: contador, veterinario, recepcionista, gerente
-     * - Permisos globales para control granular
+     * USUARIOS DE PRUEBA:
+     * - Admin: admin@happypaws.test / admin123
+     * - Contador: contador@happypaws.test / contador123
+     * - Veterinario: vet@happypaws.test / vet123
+     * - Asistente: asistente@happypaws.test / asistente123
+     * - Gerente: gerente@happypaws.test / gerente123
+     * - Cliente: cliente@happypaws.test / cliente123
      */
     public function run(): void
     {
@@ -59,7 +62,7 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::firstOrCreate(['name' => $name, 'guard_name' => 'web']);
         }
 
-        // 👤 CREAR USUARIOS DE EJEMPLO
+        // 👤 CREAR USUARIOS DE PRUEBA
         $this->createExampleUsers();
 
         // 🎯 ASIGNAR PERMISOS SEGÚN CATEGORÍA
@@ -67,7 +70,117 @@ class RolesAndPermissionsSeeder extends Seeder
     }
 
     /**
-     * Asignar permisos según categoría de staff.
+     * Crear usuarios de prueba con contraseñas simples.
+     * 
+     * ⚠️ NO usar en producción
+     */
+    protected function createExampleUsers(): void
+    {
+        // 🔑 ADMIN #1 - Superadministrador
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@happypaws.test'],
+            [
+                'name' => 'Juan Administrador',
+                'password' => Hash::make('admin123'),
+                'user_type' => 'admin',
+                'staff_type' => null,
+                'activo' => true,
+                'telefono' => '999000001'
+            ]
+        );
+        $admin->assignRole('admin');
+
+        // 🔑 ADMIN #2 - Para tests
+        $adminTest = User::firstOrCreate(
+            ['email' => 'admin@prueba.com'],
+            [
+                'name' => 'Admin de Pruebas',
+                'password' => Hash::make('admin123'),
+                'user_type' => 'admin',
+                'staff_type' => null,
+                'activo' => true,
+                'telefono' => '999000000'
+            ]
+        );
+        $adminTest->assignRole('admin');
+
+        // 💼 CONTADOR - Facturación y reportes
+        $contador = User::firstOrCreate(
+            ['email' => 'contador@happypaws.test'],
+            [
+                'name' => 'Carlos Contador',
+                'password' => Hash::make('contador123'),
+                'user_type' => 'staff',
+                'staff_type' => 'contador',
+                'activo' => true,
+                'telefono' => '999000002'
+            ]
+        );
+        $contador->assignRole('staff');
+        $contador->assignRole('contador');
+
+        // 🏥 VETERINARIO - Citas y mascotas
+        $vet = User::firstOrCreate(
+            ['email' => 'vet@happypaws.test'],
+            [
+                'name' => 'Dra. María Veterinaria',
+                'password' => Hash::make('vet123'),
+                'user_type' => 'staff',
+                'staff_type' => 'veterinario',
+                'activo' => true,
+                'telefono' => '999000003'
+            ]
+        );
+        $vet->assignRole('staff');
+        $vet->assignRole('veterinario');
+
+        // 📞 RECEPCIONISTA / ASISTENTE - Clientes, mascotas y citas
+        $recep = User::firstOrCreate(
+            ['email' => 'asistente@happypaws.test'],
+            [
+                'name' => 'Laura Asistente',
+                'password' => Hash::make('asistente123'),
+                'user_type' => 'staff',
+                'staff_type' => 'recepcionista',
+                'activo' => true,
+                'telefono' => '999000004'
+            ]
+        );
+        $recep->assignRole('staff');
+        $recep->assignRole('recepcionista');
+
+        // 👔 GERENTE - Acceso operativo completo
+        $gerente = User::firstOrCreate(
+            ['email' => 'gerente@happypaws.test'],
+            [
+                'name' => 'Juan Gerente',
+                'password' => Hash::make('gerente123'),
+                'user_type' => 'staff',
+                'staff_type' => 'gerente',
+                'activo' => true,
+                'telefono' => '999000005'
+            ]
+        );
+        $gerente->assignRole('staff');
+        $gerente->assignRole('gerente');
+
+        // 👥 CLIENTE / PUBLIC - Usuario público/cliente
+        $public = User::firstOrCreate(
+            ['email' => 'cliente@happypaws.test'],
+            [
+                'name' => 'Roberto Cliente',
+                'password' => Hash::make('cliente123'),
+                'user_type' => 'public',
+                'staff_type' => null,
+                'activo' => true,
+                'telefono' => '999999999'
+            ]
+        );
+        $public->assignRole('public');
+    }
+
+    /**
+     * Asignar permisos modulares según categoría de staff.
      */
     protected function assignPermissionsByStaffType($adminRole): void
     {
@@ -114,116 +227,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'module-reportes-medicos',
         ]);
 
-        // Permiso especial de settings para admin (ya existe)
+        // Permiso especial de settings para admin
         $settingsManage = Permission::findByName('settings_manage');
         $adminRole->givePermissionTo($settingsManage);
-    }
-
-    /**
-     * Crear usuarios de ejemplo con sus roles correspondientes.
-     */
-    protected function createExampleUsers(): void
-    {
-        // 🔑 ADMIN
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@clinica.test'],
-            [
-                'name' => 'Administrador',
-                'password' => Hash::make('password123'),
-                'user_type' => 'admin',
-                'staff_type' => null,
-                'activo' => true,
-                'telefono' => '999000001'
-            ]
-        );
-        $admin->assignRole('admin');
-
-        // 🔑 ADMIN (usuario para pruebas)
-        $adminTest = User::firstOrCreate(
-            ['email' => 'admin@prueba.com'],
-            [
-                'name' => 'Admin de Pruebas',
-                'password' => Hash::make('password123'),
-                'user_type' => 'admin',
-                'staff_type' => null,
-                'activo' => true,
-                'telefono' => '999000000'
-            ]
-        );
-        $adminTest->assignRole('admin');
-
-        // 💼 CONTADOR
-        $contador = User::firstOrCreate(
-            ['email' => 'contador@clinica.test'],
-            [
-                'name' => 'Carlos Contador',
-                'password' => Hash::make('password123'),
-                'user_type' => 'staff',
-                'staff_type' => 'contador',
-                'activo' => true,
-                'telefono' => '999000002'
-            ]
-        );
-        $contador->assignRole('staff');
-        $contador->assignRole('contador');
-
-        // 🏥 VETERINARIO
-        $vet = User::firstOrCreate(
-            ['email' => 'vet@clinica.test'],
-            [
-                'name' => 'Dr. Veterinario',
-                'password' => Hash::make('password123'),
-                'user_type' => 'staff',
-                'staff_type' => 'veterinario',
-                'activo' => true,
-                'telefono' => '999000003'
-            ]
-        );
-        $vet->assignRole('staff');
-        $vet->assignRole('veterinario');
-
-        // 📞 RECEPCIONISTA
-        $recep = User::firstOrCreate(
-            ['email' => 'recepcion@clinica.test'],
-            [
-                'name' => 'María Recepcionista',
-                'password' => Hash::make('password123'),
-                'user_type' => 'staff',
-                'staff_type' => 'recepcionista',
-                'activo' => true,
-                'telefono' => '999000004'
-            ]
-        );
-        $recep->assignRole('staff');
-        $recep->assignRole('recepcionista');
-
-        // 👔 GERENTE
-        $gerente = User::firstOrCreate(
-            ['email' => 'gerente@clinica.test'],
-            [
-                'name' => 'Juan Gerente',
-                'password' => Hash::make('password123'),
-                'user_type' => 'staff',
-                'staff_type' => 'gerente',
-                'activo' => true,
-                'telefono' => '999000005'
-            ]
-        );
-        $gerente->assignRole('staff');
-        $gerente->assignRole('gerente');
-
-        // 👥 USUARIO PÚBLICO
-        $public = User::firstOrCreate(
-            ['email' => 'cliente@example.test'],
-            [
-                'name' => 'Juan Cliente',
-                'password' => Hash::make('password123'),
-                'user_type' => 'public',
-                'staff_type' => null,
-                'activo' => true,
-                'telefono' => '999000099'
-            ]
-        );
-        $public->assignRole('public');
     }
 }

@@ -1,14 +1,14 @@
 # Multi-stage Dockerfile para Laravel 11 en Render
 FROM php:8.3-fpm-alpine AS base
 
-# Instalar extensiones PHP necesarias
-RUN apk add --no-cache \
+# Actualizar índice de paquetes
+RUN apk update && apk add --no-cache \
     curl \
     git \
     libpq-dev \
     zip \
     unzip \
-    mysql-client \
+    mariadb-client \
     && docker-php-ext-install \
     pdo \
     pdo_mysql \
@@ -49,10 +49,10 @@ RUN php artisan key:generate --force 2>/dev/null || true
 # Crear nginx stage
 FROM php:8.3-fpm-alpine
 
-RUN apk add --no-cache \
+RUN apk update && apk add --no-cache \
     curl \
     libpq \
-    mysql-client \
+    mariadb-client \
     && docker-php-ext-install \
     pdo \
     pdo_mysql \
