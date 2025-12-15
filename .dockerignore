@@ -15,7 +15,6 @@ storage/framework/views
 .DS_Store
 docker-compose.yml
 .editorconfig
-.env.example
 CHANGELOG.md
 composer.lock
 package-lock.json
