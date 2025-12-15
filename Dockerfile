@@ -66,6 +66,11 @@ RUN mkdir -p \
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # =========================
+# Generar APP_KEY temporal para compilar assets
+# =========================
+RUN php artisan key:generate --force 2>/dev/null || true
+
+# =========================
 # Assets Frontend (Vite)
 # =========================
 RUN npm install --legacy-peer-deps && npm run build
