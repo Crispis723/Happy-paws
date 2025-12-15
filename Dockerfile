@@ -84,7 +84,7 @@ RUN sed -i 's/80/10000/g' /etc/apache2/ports.conf /etc/apache2/sites-available/0
 # =========================
 # Entrypoint seguro (sin shell)
 # =========================
-RRUN printf '#!/bin/bash\n\
+RUN printf '#!/bin/bash\n\
 php artisan key:generate --force || true\n\
 php artisan config:clear || true\n\
 php artisan route:clear || true\n\
