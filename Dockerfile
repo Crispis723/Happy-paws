@@ -84,13 +84,13 @@ RUN sed -i 's/80/10000/g' /etc/apache2/ports.conf /etc/apache2/sites-available/0
 # =========================
 # Entrypoint seguro (sin shell)
 # =========================
-RUN echo '#!/bin/bash
-php artisan key:generate --force || true
-php artisan config:clear || true
-php artisan route:clear || true
-php artisan view:clear || true
-php artisan cache:clear || true
-apache2-foreground' > /usr/local/bin/docker-entrypoint.sh \
+RRUN printf '#!/bin/bash\n\
+php artisan key:generate --force || true\n\
+php artisan config:clear || true\n\
+php artisan route:clear || true\n\
+php artisan view:clear || true\n\
+php artisan cache:clear || true\n\
+apache2-foreground\n' > /usr/local/bin/docker-entrypoint.sh \
  && chmod +x /usr/local/bin/docker-entrypoint.sh
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
