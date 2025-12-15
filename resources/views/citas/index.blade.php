@@ -25,6 +25,7 @@
                                     <th>Teléfono</th>
                                     <th>Mascota</th>
                                     <th>Especie</th>
+                                    <th>Veterinario</th>
                                     <th>Motivo</th>
                                     <th>Estado</th>
                                     <th>Precio</th>
@@ -39,6 +40,7 @@
                                     <td>{{ $cita->cliente_telefono }}</td>
                                     <td>{{ $cita->mascota_nombre }}</td>
                                     <td>{{ $cita->mascota_especie }}</td>
+                                    <td>{{ optional($cita->veterinario)->name ?? '-' }}</td>
                                     <td>{{ Str::limit($cita->motivo, 50) }}</td>
                                     <td>{{ ucfirst($cita->estado ?? 'pendiente') }}</td>
                                     <td>{{ $cita->precio ? number_format($cita->precio,2) : '-' }}</td>

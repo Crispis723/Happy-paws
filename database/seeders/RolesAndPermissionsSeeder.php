@@ -44,9 +44,14 @@ class RolesAndPermissionsSeeder extends Seeder
         // Crear roles
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $vendedorRole = Role::firstOrCreate(['name' => 'vendedor']);
+        $veterinarioRole = Role::firstOrCreate(['name' => 'veterinario']);
 
         // Asignar todos los permisos al rol admin
         $adminRole->syncPermissions($permissions);
+
+        // Permiso específico para administrar configuraciones (precio de cita)
+        $settingsPerm = Permission::firstOrCreate(['name' => 'settings_manage']);
+        $adminRole->givePermissionTo($settingsPerm);
 
         // Permisos solo de ventas para vendedor
         $vendedorPerms = [

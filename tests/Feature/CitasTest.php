@@ -20,23 +20,24 @@ class CitasTest extends TestCase
     public function test_authenticated_user_can_create_cita()
     {
         $user = User::factory()->create();
+        $mascota = \App\Models\Mascota::factory()->create(['user_id' => $user->id]);
+
+        $vet = \App\Models\User::factory()->create();
+        $vet->assignRole('veterinario');
 
         $payload = [
             'fecha_hora' => now()->addDay()->format('Y-m-d H:i'),
-            'cliente_nombre' => 'Test Cliente',
-            'cliente_telefono' => '999888777',
-            'mascota_nombre' => 'Buddy',
-            'mascota_especie' => 'Perro',
+            'mascota_id' => $mascota->id,
+            'veterinario_id' => $vet->id,
             'motivo' => 'Chequeo',
-            'precio' => 30.00,
         ];
 
         $response = $this->actingAs($user)->post('/citas', $payload);
         $response->assertRedirect('/citas');
 
         $this->assertDatabaseHas('citas', [
-            'cliente_nombre' => 'Test Cliente',
-            'mascota_nombre' => 'Buddy',
+            'cliente_nombre' => $user->name,
+            'mascota_id' => $mascota->id,
         ]);
     }
 

@@ -22,6 +22,9 @@
                         <dt class="col-sm-4">Especie</dt>
                         <dd class="col-sm-8">{{ $cita->mascota_especie }}</dd>
 
+                        <dt class="col-sm-4">Veterinario</dt>
+                        <dd class="col-sm-8">{{ optional($cita->veterinario)->name ?? '-' }}</dd>
+
                         <dt class="col-sm-4">Motivo</dt>
                         <dd class="col-sm-8">{{ $cita->motivo }}</dd>
 

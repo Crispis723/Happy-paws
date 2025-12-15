@@ -17,6 +17,7 @@ use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\ComprobanteSerieController;
 use App\Http\Controllers\CitaController;
+use App\Http\Controllers\MascotaController;
 
 use App\Exports\VentasExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -79,6 +80,10 @@ Route::middleware(['auth'])->group(function () {
         Auth::logout();
         return redirect('/login');
     })->name('logout');
+
+    // Admin settings: manage global cita price
+    Route::get('admin/settings/cita_precio', [\App\Http\Controllers\Admin\SettingController::class, 'edit'])->name('admin.settings.cita_precio.edit');
+    Route::post('admin/settings/cita_precio', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('admin.settings.cita_precio.update');
 
     Route::get('/perfil', [PerfilController::class, 'edit'])->name('perfil.edit');
     Route::put('/perfil', [PerfilController::class, 'update'])->name('perfil.update');

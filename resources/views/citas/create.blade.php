@@ -14,6 +14,7 @@
                             @error('fecha_hora') <div class="text-danger">{{ $message }}</div> @enderror
                         </div>
 
+                        @guest
                         <div class="mb-3">
                             <label class="form-label">Nombre del cliente</label>
                             <input type="text" name="cliente_nombre" class="form-control" value="{{ old('cliente_nombre') }}">
@@ -25,8 +26,29 @@
                             <input type="text" name="cliente_telefono" class="form-control" value="{{ old('cliente_telefono') }}">
                             @error('cliente_telefono') <div class="text-danger">{{ $message }}</div> @enderror
                         </div>
+                        @else
+                        <div class="mb-3">
+                            <label class="form-label">Cliente</label>
+                            <div class="form-control-plaintext">{{ auth()->user()->name }} @if(auth()->user()->telefono) - {{ auth()->user()->telefono }} @endif</div>
+                            <input type="hidden" name="cliente_nombre" value="{{ auth()->user()->name }}">
+                            <input type="hidden" name="cliente_telefono" value="{{ auth()->user()->telefono ?? '' }}">
+                        </div>
+                        @endguest
 
                         @php $hasMascotas = isset($mascotas) && $mascotas->isNotEmpty(); @endphp
+
+                        @php $veterinarios = $veterinarios ?? collect(); @endphp
+
+                        <div class="mb-3">
+                            <label class="form-label">Veterinario (médico que atiende)</label>
+                            <select name="veterinario_id" class="form-select">
+                                <option value="">-- Seleccionar veterinario --</option>
+                                @foreach($veterinarios as $vet)
+                                    <option value="{{ $vet->id }}" {{ old('veterinario_id') == $vet->id ? 'selected' : '' }}>{{ $vet->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('veterinario_id') <div class="text-danger">{{ $message }}</div> @enderror
+                        </div>
 
                         @if($hasMascotas)
                         <div class="mb-3">
@@ -59,9 +81,8 @@
                             @error('motivo') <div class="text-danger">{{ $message }}</div> @enderror
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Precio (opcional)</label>
-                            <input type="number" step="0.01" name="precio" class="form-control" value="{{ old('precio') }}">
-                            @error('precio') <div class="text-danger">{{ $message }}</div> @enderror
+                            <label class="form-label">Precio</label>
+                            <div class="form-control-plaintext">{{ number_format(\App\Models\Setting::get('cita_precio', '0.00'), 2) }} PEN</div>
                         </div>
                         <div class="d-flex justify-content-between">
                             <a href="{{ route('citas.index') }}" class="btn btn-secondary">Cancelar</a>

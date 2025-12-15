@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call(RolesAndPermissionsSeeder::class);
         $this->call(CitaSeeder::class);
         $this->call(MascotaSeeder::class);
+        $this->call(SettingsSeeder::class);
 
         // Test user for manual UI testing
         \App\Models\User::firstOrCreate(

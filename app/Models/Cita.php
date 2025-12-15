@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class Cita extends Model
 {
@@ -19,6 +20,7 @@ class Cita extends Model
         'estado',
         'precio',
         'notas',
+        'veterinario_id',
     ];
 
     protected $dates = [
@@ -30,5 +32,10 @@ class Cita extends Model
     public function mascota()
     {
         return $this->belongsTo(Mascota::class);
+    }
+
+    public function veterinario()
+    {
+        return $this->belongsTo(User::class, 'veterinario_id');
     }
 }
