@@ -18,6 +18,9 @@
     />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!--end::Primary Meta Tags-->
+    
+    {{-- Vite bundles (CSS/JS) for production assets --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="shortcut icon" href="{{asset('assets/favicon_1.ico')}}" type="image/x-icon">
     <!--begin::Fonts-->
     <link
