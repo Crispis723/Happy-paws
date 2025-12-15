@@ -1,0 +1,86 @@
+services:
+  # Servicio web (Laravel con Nginx)
+  web:
+    type: web
+    name: sistema-clinica
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    region: oregon
+    plan: standard
+    
+    # Variables de entorno
+    envVars:
+      - key: APP_ENV
+        value: production
+        
+      - key: APP_DEBUG
+        value: "false"
+        
+      - key: APP_URL
+        value: https://sistema-clinica.onrender.com
+        
+      - key: LOG_CHANNEL
+        value: stack
+        
+      # Base de datos (Render PostgreSQL)
+      - key: DB_CONNECTION
+        value: pgsql
+        
+      - key: DB_HOST
+        fromDatabase:
+          name: sistema-db
+          property: host
+          
+      - key: DB_PORT
+        fromDatabase:
+          name: sistema-db
+          property: port
+          
+      - key: DB_DATABASE
+        fromDatabase:
+          name: sistema-db
+          property: database
+          
+      - key: DB_USERNAME
+        fromDatabase:
+          name: sistema-db
+          property: username
+          
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: sistema-db
+          property: password
+      
+      # Cache
+      - key: CACHE_DRIVER
+        value: file
+        
+      # Session
+      - key: SESSION_DRIVER
+        value: file
+        
+      # Mail (comentado, configurar según necesidad)
+      # - key: MAIL_MAILER
+      #   value: smtp
+      # - key: MAIL_HOST
+      #   value: smtp.mailtrap.io
+      # - key: MAIL_PORT
+      #   value: "587"
+      # - key: MAIL_USERNAME
+      #   value: tu_username
+      # - key: MAIL_PASSWORD
+      #   value: tu_password
+      # - key: MAIL_FROM_ADDRESS
+      #   value: noreply@clinica.com
+      # - key: MAIL_FROM_NAME
+      #   value: Clínica Veterinaria
+
+  # Base de datos PostgreSQL
+  db:
+    type: pgsql
+    name: sistema-db
+    ipAllowList: []
+    # El plan free está limitado, considera usar 'starter' en producción
+    plan: free
+    region: oregon
+    postgresMajorVersion: 15
