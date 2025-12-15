@@ -51,15 +51,4 @@ RUN mkdir -p storage/logs bootstrap/cache \
 EXPOSE 10000
 RUN sed -i 's/80/10000/g' /etc/apache2/ports.conf /etc/apache2/sites-available/000-default.conf
 
-# Crear script de entrada para ejecutar migraciones y limpiar cache
-RUN echo '#!/bin/bash\n\
-php artisan config:cache\n\
-php artisan route:cache\n\
-php artisan migrate --force 2>/dev/null || true\n\
-php artisan optimize 2>/dev/null || true\n\
-apache2-foreground' > /usr/local/bin/docker-entrypoint.sh && chmod +x /usr/local/bin/docker-entrypoint.sh
-
-CMD ["/usr/local/bin/docker-entrypoint.sh"]
-RUN sed -i 's/80/10000/g' /etc/apache2/ports.conf /etc/apache2/sites-available/000-default.conf
-
 CMD ["apache2-foreground"]
