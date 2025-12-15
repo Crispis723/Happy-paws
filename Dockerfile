@@ -1,83 +1,48 @@
-# Build stage
-FROM php:8.3-fpm-alpine AS builder
+FROM php:8.2-apache
 
-# Instalar dependencias esenciales
-RUN apk add --no-cache \
+# Instalación de dependencias del sistema (usando apt-get en lugar de apk)
+RUN apt-get update && apt-get install -y \
     curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    default-mysql-client \
     git \
     zip \
     unzip \
-    libpq-dev \
-    oniguruma-dev
+    && rm -rf /var/lib/apt/lists/*
 
-# Instalar extensiones PHP
+# Extensiones PHP necesarias para Laravel + MySQL
 RUN docker-php-ext-install \
     pdo \
-    pdo_pgsql \
     pdo_mysql \
+    mbstring \
     bcmath \
-    mbstring
+    gd
 
-# Instalar Composer
+# Habilitar mod_rewrite para Apache
+RUN a2enmod rewrite
+
+# Instalar Composer (manejo de dependencias PHP)
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Instalar Node.js y npm
-RUN apk add --no-cache nodejs npm
+# Copiar el proyecto
+COPY . /var/www/html
 
-# Copiar archivos del proyecto
-WORKDIR /app
-COPY . .
+# Establecer permisos adecuados
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Instalar dependencias PHP
-RUN composer install --no-interaction --optimize-autoloader --no-dev
+# Directorio de trabajo para ejecutar Composer
+WORKDIR /var/www/html
 
-# Compilar assets
-RUN npm install && npm run build
+# Instalar dependencias de Laravel
+RUN composer install --no-dev --optimize-autoloader
 
-# Runtime stage
-FROM php:8.3-fpm-alpine
+# Exponer el puerto utilizado por Render
+EXPOSE 10000
 
-# Instalar dependencias runtime
-RUN apk add --no-cache \
-    curl \
-    libpq \
-    oniguruma \
-    nginx \
-    supervisor \
-    busybox-initscripts
+# Modificar configuración para que Apache escuche en el puerto 10000
+RUN sed -i 's/80/10000/g' /etc/apache2/ports.conf /etc/apache2/sites-available/000-default.conf
 
-# Instalar extensiones PHP
-RUN docker-php-ext-install \
-    pdo \
-    pdo_pgsql \
-    pdo_mysql \
-    bcmath \
-    mbstring
-
-# Copiar archivos compilados desde builder
-COPY --from=builder /app /app
-COPY --from=builder /usr/bin/composer /usr/bin/composer
-
-WORKDIR /app
-
-# Crear directorios necesarios
-RUN mkdir -p storage/logs storage/framework/{cache,sessions,views} \
-    && chown -R www-data:www-data storage bootstrap/cache
-
-# Generar APP_KEY
-RUN php artisan key:generate --force 2>/dev/null || true
-
-# Configurar Nginx
-COPY docker/nginx.conf /etc/nginx/nginx.conf
-
-# Crear directorios de logs y run
-RUN mkdir -p /var/log/nginx /run/nginx
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost/health || exit 1
-
-EXPOSE 80
-
-# Script de entrada
-CMD ["sh", "-c", "php artisan migrate --force 2>/dev/null || true && /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
+# Comando final para iniciar Apache
+CMD ["apache2-foreground"]
