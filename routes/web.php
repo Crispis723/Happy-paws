@@ -16,6 +16,7 @@ use App\Http\Controllers\CompraController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\ComprobanteSerieController;
+use App\Http\Controllers\CitaController;
 
 use App\Exports\VentasExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -33,6 +34,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
 
+// Public routes for requesting citas (anyone can request an appointment)
+Route::get('citas/create', [CitaController::class, 'create'])->name('citas.create');
+Route::post('citas', [CitaController::class, 'store'])->name('citas.store');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/afectacion-tipos/select', [AfectacionTipoController::class, 'select'])->name('afectacion-tipos.select');
     Route::resource('afectacion-tipos', AfectacionTipoController::class)->except(['create', 'edit']);
@@ -45,9 +50,10 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('comprobante-tipos', ComprobanteTipoController::class)->except(['create', 'edit']);
     Route::resource('comprobante-series', ComprobanteSerieController::class)->except(['create', 'edit']);
     Route::get('/productos/buscar', [ProductoController::class, 'buscar'])->name('productos.buscar');
-    
+    Route::resource('citas', CitaController::class)->except(['create','store']);
 
     Route::resource('unidades', UnidadController::class)->except(['create', 'edit']);
+    Route::resource('mascotas', MascotaController::class)->middleware('auth');
     Route::resource('productos', ProductoController::class)->except(['create', 'edit']);
     Route::resource('roles', RoleController::class)->except(['create', 'edit']);
     Route::resource('usuarios', UserController::class)->except(['create', 'edit']); 

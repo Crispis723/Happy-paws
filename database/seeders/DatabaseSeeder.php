@@ -16,5 +16,13 @@ class DatabaseSeeder extends Seeder
         $this->call(UnidadSeeder::class);
         $this->call(AfectacionSeeder::class);
         $this->call(RolesAndPermissionsSeeder::class);
+        $this->call(CitaSeeder::class);
+        $this->call(MascotaSeeder::class);
+
+        // Test user for manual UI testing
+        \App\Models\User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            ['name' => 'Usuario Prueba', 'password' => bcrypt('password')]
+        );
     }
 }

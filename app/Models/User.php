@@ -18,6 +18,14 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+     
+    
+    public function mascotas() 
+    { 
+        return $this->hasMany(Mascota::class); 
+    }
+    
+    
     protected $fillable = [
         'name',
         'email',
@@ -33,6 +41,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        
     ];
 
     /**

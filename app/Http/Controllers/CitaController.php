@@ -17,23 +17,89 @@ class CitaController extends Controller
     // Mostrar formulario para crear
     public function create()
     {
-        return view('citas.create');
+    $mascotas = auth()->check() ? auth()->user()->mascotas()->get() : collect();
+    $selected = request()->query('mascota_id');
+    return view('citas.create', ['mascotas' => $mascotas, 'selected_mascota_id' => $selected]);
     }
 
     // Guardar la cita en BD
+
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'fecha_hora' => 'required|date_format:Y-m-d H:i',
-            'cliente_nombre' => 'required|string|max:255',
-            'cliente_telefono' => 'required|string|max:20',
-            'mascota_nombre' => 'required|string|max:255',
-            'mascota_especie' => 'required|string|max:255',
-            'motivo' => 'required|string',
-            'precio' => 'nullable|numeric',
-        ]);
+        if ($request->has('fecha_hora')) {
+            $request->merge(['fecha_hora' => str_replace('T', ' ', $request->fecha_hora)]);
+        }
 
-        Cita::create($validated);
+        // Si el usuario ha seleccionado una mascota existente
+        if ($request->filled('mascota_id') && auth()->check()) {
+            $request->validate([
+                'mascota_id' => 'required|integer|exists:mascotas,id',
+                'fecha_hora' => 'required|date_format:Y-m-d H:i',
+                'motivo' => 'required|string',
+                'precio' => 'nullable|numeric',
+            ]);
+
+            // Verificar propiedad
+            $mascota = auth()->user()->mascotas()->find($request->mascota_id);
+            if (!$mascota) {
+                abort(403, 'Mascota inválida.');
+            }
+
+            Cita::create([
+                'fecha_hora' => $request->fecha_hora,
+                'cliente_nombre' => auth()->user()->name,
+                'cliente_telefono' => auth()->user()->telefono ?? $request->cliente_telefono,
+                'mascota_id' => $mascota->id,
+                'mascota_nombre' => $mascota->nombre, // opcional: guardar snapshot
+                'mascota_especie' => $mascota->especie,
+                'motivo' => $request->motivo,
+                'precio' => $request->precio,
+            ]);
+
+        } else {
+            // Comportamiento anterior: datos manuales para invitado u "otra mascota"
+            // Si el usuario autenticado selecciona una mascota existente
+            if ($request->filled('mascota_id') && auth()->check()) {
+                $request->validate([
+                    'mascota_id' => 'required|integer|exists:mascotas,id',
+                    'fecha_hora' => 'required|date_format:Y-m-d H:i',
+                    'motivo' => 'required|string',
+                    'precio' => 'nullable|numeric',
+                ]);
+
+                // Verificar que la mascota pertenece al usuario
+                $mascota = auth()->user()->mascotas()->find($request->mascota_id);
+                if (!$mascota) {
+                    abort(403, 'Mascota inválida.');
+                }
+
+                Cita::create([
+                    'fecha_hora' => $request->fecha_hora,
+                    'cliente_nombre' => auth()->user()->name,
+                    'cliente_telefono' => auth()->user()->telefono ?? $request->cliente_telefono ?? null,
+                    'mascota_id' => $mascota->id,
+                    'mascota_nombre' => $mascota->nombre,
+                    'mascota_especie' => $mascota->especie,
+                    'motivo' => $request->motivo,
+                    'precio' => $request->precio,
+                ]);
+            } else {
+                $validated = $request->validate([
+                    'fecha_hora' => 'required|date_format:Y-m-d H:i',
+                    'cliente_nombre' => 'required|string|max:255',
+                    'cliente_telefono' => 'required|string|max:20',
+                    'mascota_nombre' => 'required|string|max:255',
+                    'mascota_especie' => 'required|string|max:255',
+                    'motivo' => 'required|string',
+                    'precio' => 'nullable|numeric',
+                ]);
+
+                Cita::create($validated);
+            }
+        }
+
+        // redirecciones y mensajes como ahora...
+
         return redirect()->route('citas.index')->with('success', 'Cita creada exitosamente.');
     }
 
@@ -52,6 +118,11 @@ class CitaController extends Controller
     // Actualizar en BD
     public function update(Request $request, Cita $cita)
     {
+        // Normalize datetime-local input
+        if ($request->has('fecha_hora')) {
+            $request->merge(['fecha_hora' => str_replace('T', ' ', $request->fecha_hora)]);
+        }
+
         $validated = $request->validate([
             'fecha_hora' => 'required|date_format:Y-m-d H:i',
             'cliente_nombre' => 'required|string|max:255',

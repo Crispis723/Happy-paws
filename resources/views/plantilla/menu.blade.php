@@ -25,6 +25,14 @@
                         <p>Dashboard</p>
                     </a>
                 </li>
+                @auth
+                <li class="nav-item">
+                    <a href="{{route('citas.index')}}" class="nav-link" id="itemCitasIndex">
+                        <i class="nav-icon bi bi-calendar-week" style="color: var(--primary-color);"></i>
+                        <p>Citas</p>
+                    </a>
+                </li>
+                @endauth
                 @canany(['citas_list', 'pacientes_list'])
                 <li class="nav-item" id="mnuAlmacen">
                     <a href="#" class="nav-link">                        
@@ -85,6 +93,14 @@
                             <a href="{{route('clientes.index')}}" class="nav-link" id="itemClientes">
                                 <i class="bi bi-person-vcard"></i>
                                 <p>Clientes</p>
+                            </a>
+                        </li>
+                        @endcan
+                        @can('citas_list')
+                        <li class="nav-item">
+                            <a href="{{route('citas.index')}}" class="nav-link" id="itemCitas">
+                                <i class="bi bi-calendar-week"></i>
+                                <p>Citas</p>
                             </a>
                         </li>
                         @endcan

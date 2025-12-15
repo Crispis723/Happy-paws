@@ -8,7 +8,7 @@
                     <i class="bi bi-list"></i>
                 </a>
             </li>
-            <li class="nav-item d-none d-md-block"><a href="#" class="nav-link text-white">Citas</a></li>
+            <li class="nav-item d-none d-md-block"><a href="{{ route('citas.create') }}" class="nav-link text-white">Pedir cita</a></li>
             <li class="nav-item d-none d-md-block"><a href="#" class="nav-link text-white">Pacientes</a></li>
         </ul>
         <!--end::Start Navbar Links-->

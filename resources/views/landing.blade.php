@@ -40,12 +40,15 @@
         <div class="hero-content">
           <h1>Sistema de Gestión Veterinario</h1>
           <p>Administra citas, pacientes, tratamientos e historia médica de forma eficiente en tu clínica veterinaria.</p>
+          @if(session('success'))
+            <div class="alert alert-success" role="alert" style="margin-top:1rem">{{ session('success') }}</div>
+          @endif
           <div class="btn-group">
+            <a href="{{ route('citas.create') }}" class="btn-primary">Pedir cita</a>
             @guest
               <a href="#" onclick="openAuthModal()" class="btn-secondary">Comenzar</a>
-              <a href="#servicios" class="btn-primary">Ver más</a>
             @else
-              <a href="{{ route('dashboard') }}" class="btn-primary">Ir al Dashboard</a>
+              <a href="{{ route('dashboard') }}" class="btn-secondary">Ir al Dashboard</a>
             @endguest
           </div>
         </div>
