@@ -39,8 +39,13 @@ RUN mkdir -p storage bootstrap/cache \
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Ajustar permisos para Apache
-RUN chown -R www-data:www-data storage bootstrap/cache public
+# Copiar .env y generar APP_KEY
+COPY .env.example .env
+RUN php artisan key:generate --force
+
+# Asegurar permisos para Apache
+RUN mkdir -p storage/logs bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html
 
 EXPOSE 10000
 RUN sed -i 's/80/10000/g' /etc/apache2/ports.conf /etc/apache2/sites-available/000-default.conf
