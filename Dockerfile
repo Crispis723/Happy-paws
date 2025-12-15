@@ -73,7 +73,8 @@ RUN npm install --legacy-peer-deps && npm run build
 # =========================
 # Permisos finales
 # =========================
-RUN chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # =========================
 # Puerto para Render
@@ -81,16 +82,4 @@ RUN chown -R www-data:www-data /var/www/html
 EXPOSE 10000
 RUN sed -i 's/80/10000/g' /etc/apache2/ports.conf /etc/apache2/sites-available/000-default.conf
 
-# =========================
-# Entrypoint seguro (sin shell)
-# =========================
-RUN printf '#!/bin/bash\n\
-php artisan key:generate --force || true\n\
-php artisan config:clear || true\n\
-php artisan route:clear || true\n\
-php artisan view:clear || true\n\
-php artisan cache:clear || true\n\
-apache2-foreground\n' > /usr/local/bin/docker-entrypoint.sh \
- && chmod +x /usr/local/bin/docker-entrypoint.sh
-
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["apache2-foreground"]
