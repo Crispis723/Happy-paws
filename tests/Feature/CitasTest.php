@@ -22,6 +22,7 @@ class CitasTest extends TestCase
         $user = User::factory()->create();
         $mascota = \App\Models\Mascota::factory()->create(['user_id' => $user->id]);
 
+        \Spatie\Permission\Models\Role::findOrCreate('veterinario', 'web');
         $vet = \App\Models\User::factory()->create();
         $vet->assignRole('veterinario');
 

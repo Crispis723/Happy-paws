@@ -32,4 +32,21 @@ class ReporteController extends Controller
 
         return view('reportes.ventas', compact('ventas', 'users'));
     }
+
+    /**
+     * Reportes financieros (contador/gerente/admin).
+     */
+    public function reporteFinancieros()
+    {
+        // Autorizar usando middleware o gate en la ruta
+        return view('reportes.financieros');
+    }
+
+    /**
+     * Reportes médicos (veterinario/gerente/admin).
+     */
+    public function reporteMedicos()
+    {
+        return view('reportes.medicos');
+    }
 }

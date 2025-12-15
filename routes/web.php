@@ -18,6 +18,7 @@ use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\ComprobanteSerieController;
 use App\Http\Controllers\CitaController;
 use App\Http\Controllers\MascotaController;
+use App\Http\Controllers\DashboardController;
 
 use App\Exports\VentasExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -35,11 +36,21 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
 
+Route::middleware(['auth', 'role:admin'])->get('/test-role', function () {
+    return 'SOY ADMIN';
+});
+
+
 // Public routes for requesting citas (anyone can request an appointment)
 Route::get('citas/create', [CitaController::class, 'create'])->name('citas.create');
 Route::post('citas', [CitaController::class, 'store'])->name('citas.store');
 
 Route::middleware(['auth'])->group(function () {
+    // 🏠 DASHBOARD - Redirección inteligente según tipo de usuario
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('dashboard/staff', [DashboardController::class, 'staff'])->name('dashboard.staff');
+    Route::get('dashboard/public', [DashboardController::class, 'public'])->name('dashboard.public');
+    
     Route::get('/afectacion-tipos/select', [AfectacionTipoController::class, 'select'])->name('afectacion-tipos.select');
     Route::resource('afectacion-tipos', AfectacionTipoController::class)->except(['create', 'edit']);
     Route::get('/unidades/select', [UnidadController::class, 'select'])->name('unidades.select');
@@ -72,18 +83,27 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/compras/{id}/imprimir', [CompraController::class, 'printTicket'])->name('compras.imprimir');
     Route::resource('compras', CompraController::class)->except(['create', 'edit']);
 
-    Route::get('dashboard', function(){
-        return view('dashboard.index');
-    })->name('dashboard');
+    // Reportes
+    Route::get('/reportes/ventas', [ReporteController::class, 'reporteVentas'])->name('reportes.ventas');
+    Route::get('/reportes/financieros', [ReporteController::class, 'reporteFinancieros'])->name('reportes.financieros');
+    Route::get('/reportes/medicos', [ReporteController::class, 'reporteMedicos'])->name('reportes.medicos');
+    Route::get('/reportes/ventas/exportar', function (Request $request) {
+        return Excel::download(new VentasExport($request->all()), 'reporte_ventas.xlsx');
+    })->name('reportes.ventas.exportar');
     
+    // Admin settings
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('settings', function() { 
+            return view('admin.settings.index'); 
+        })->name('settings.index')->middleware('can:module-configuracion');
+        
+        Route::get('settings/cita_precio', [\App\Http\Controllers\Admin\SettingController::class, 'edit'])->name('settings.cita_precio.edit');
+        Route::post('settings/cita_precio', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.cita_precio.update');
+    });
     Route::post('/logout', function () {
         Auth::logout();
         return redirect('/login');
     })->name('logout');
-
-    // Admin settings: manage global cita price
-    Route::get('admin/settings/cita_precio', [\App\Http\Controllers\Admin\SettingController::class, 'edit'])->name('admin.settings.cita_precio.edit');
-    Route::post('admin/settings/cita_precio', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('admin.settings.cita_precio.update');
 
     Route::get('/perfil', [PerfilController::class, 'edit'])->name('perfil.edit');
     Route::put('/perfil', [PerfilController::class, 'update'])->name('perfil.update');

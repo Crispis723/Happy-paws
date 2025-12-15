@@ -1,0 +1,335 @@
+{{-- EJEMPLOS DE VISTAS CON AUTORIZACIÓN --}}
+
+{{-- ============ DASHBOARD DINÁMICO SEGÚN TIPO DE USUARIO ============ --}}
+
+@switch(auth()->user()->user_type)
+    @case('admin')
+        {{-- Panel de administrador con todas las opciones --}}
+        <div class="admin-dashboard">
+            <h1>Dashboard Administrativo</h1>
+            <div class="row">
+                <div class="col-md-3">
+                    <a href="{{ route('usuarios.index') }}" class="card">
+                        <h3>Gestionar Usuarios</h3>
+                        <p>Crear, editar, eliminar usuarios</p>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ route('roles.index') }}" class="card">
+                        <h3>Roles y Permisos</h3>
+                        <p>Configurar control de acceso</p>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ route('reportes.general') }}" class="card">
+                        <h3>Reportes</h3>
+                        <p>Ver todas las estadísticas</p>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ route('admin.settings') }}" class="card">
+                        <h3>Configuración</h3>
+                        <p>Parámetros del sistema</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+        @break
+
+    @case('staff')
+        {{-- Dashboard según categoría de empleado --}}
+        @if(auth()->user()->isStaffType('contador'))
+            <div class="contador-dashboard">
+                <h1>Dashboard - Contabilidad</h1>
+                <div class="row">
+                    <div class="col-md-4">
+                        <a href="{{ route('ventas.index') }}" class="card">
+                            <h3>Ventas</h3>
+                            <p>Gestionar facturas</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ route('compras.index') }}" class="card">
+                            <h3>Compras</h3>
+                            <p>Registrar compras</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ route('reportes.financieros') }}" class="card">
+                            <h3>Reportes Financieros</h3>
+                            <p>Análisis de ingresos/gastos</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @elseif(auth()->user()->isStaffType('veterinario'))
+            <div class="vet-dashboard">
+                <h1>Dashboard - Veterinario</h1>
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="{{ route('citas.mis-citas') }}" class="card">
+                            <h3>Mis Citas</h3>
+                            <p>{{ $appointmentCount ?? 0 }} citas asignadas</p>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{{ route('historiales.index') }}" class="card">
+                            <h3>Historiales Médicos</h3>
+                            <p>Diagnósticos y tratamientos</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @elseif(auth()->user()->isStaffType('recepcionista'))
+            <div class="recepcion-dashboard">
+                <h1>Dashboard - Recepción</h1>
+                <div class="row">
+                    <div class="col-md-4">
+                        <a href="{{ route('clientes.index') }}" class="card">
+                            <h3>Clientes</h3>
+                            <p>Gestionar información</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ route('mascotas.index') }}" class="card">
+                            <h3>Mascotas</h3>
+                            <p>Base de datos de pacientes</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ route('citas.index') }}" class="card">
+                            <h3>Citas</h3>
+                            <p>Gestionar citas médicas</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @elseif(auth()->user()->isStaffType('gerente'))
+            <div class="gerente-dashboard">
+                <h1>Dashboard - Gerencia</h1>
+                {{-- Acceso completo a todos los módulos operativos --}}
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="{{ route('clientes.index') }}" class="card">Clientes</a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ route('mascotas.index') }}" class="card">Mascotas</a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ route('citas.index') }}" class="card">Citas</a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ route('reportes.operativos') }}" class="card">Reportes</a>
+                    </div>
+                </div>
+            </div>
+        @endif
+        @break
+
+    @case('public')
+        {{-- Dashboard para usuarios públicos --}}
+        <div class="public-dashboard">
+            <h1>Bienvenido {{ auth()->user()->name }}</h1>
+            <div class="row">
+                <div class="col-md-6">
+                    <a href="{{ route('mascotas.index') }}" class="card">
+                        <h3>Mis Mascotas</h3>
+                        <p>{{ auth()->user()->mascotas()->count() }} mascotas registradas</p>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="{{ route('citas.mis-citas') }}" class="card">
+                        <h3>Mis Citas</h3>
+                        <p>Ver y gestionar mis citas</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+        @break
+@endswitch
+
+
+{{-- ============ TABLA CON ACCIONES CONDICIONADAS ============ --}}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Mascota</th>
+            <th>Especie</th>
+            <th>Dueño</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($mascotas as $mascota)
+        <tr>
+            <td>{{ $mascota->nombre }}</td>
+            <td>{{ $mascota->especie }}</td>
+            <td>{{ $mascota->user->name ?? 'N/A' }}</td>
+            <td class="d-flex gap-2">
+                {{-- VER: Todos autorizados pueden ver --}}
+                @can('view', $mascota)
+                    <a href="{{ route('mascotas.show', $mascota) }}" class="btn btn-sm btn-info">
+                        <i class="bi bi-eye"></i> Ver
+                    </a>
+                @endcan
+
+                {{-- EDITAR: Solo propietario y staff --}}
+                @can('update', $mascota)
+                    <a href="{{ route('mascotas.edit', $mascota) }}" class="btn btn-sm btn-warning">
+                        <i class="bi bi-pencil"></i> Editar
+                    </a>
+                @endcan
+
+                {{-- ELIMINAR: Solo propietario, admin y gerente --}}
+                @can('delete', $mascota)
+                    <form action="{{ route('mascotas.destroy', $mascota) }}" method="POST" style="display:inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-danger" 
+                                onclick="return confirm('¿Eliminar?')">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
+                    </form>
+                @endcan
+            </td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
+
+
+{{-- ============ MENÚ LATERAL DINÁMICO ============ --}}
+
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <h5>{{ auth()->user()->name }}</h5>
+        <small>{{ auth()->user()->user_type }} 
+            @if(auth()->user()->isStaff())
+                - {{ auth()->user()->staff_type }}
+            @endif
+        </small>
+    </div>
+
+    <ul class="nav flex-column">
+        {{-- MENÚ PARA TODOS --}}
+        <li class="nav-item">
+            <a href="{{ route('dashboard') }}" class="nav-link">
+                <i class="bi bi-house"></i> Dashboard
+            </a>
+        </li>
+
+        {{-- MENÚ PARA ADMIN --}}
+        @if(auth()->user()->isAdmin())
+            <li class="nav-item">
+                <a href="{{ route('usuarios.index') }}" class="nav-link">
+                    <i class="bi bi-people"></i> Usuarios
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('roles.index') }}" class="nav-link">
+                    <i class="bi bi-shield"></i> Roles y Permisos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.settings') }}" class="nav-link">
+                    <i class="bi bi-gear"></i> Configuración
+                </a>
+            </li>
+        @endif
+
+        {{-- MENÚ PARA CONTADOR Y GERENTE --}}
+        @if(auth()->user()->canAccessBilling())
+            <li class="nav-item">
+                <a href="{{ route('ventas.index') }}" class="nav-link">
+                    <i class="bi bi-receipt"></i> Facturación
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('reportes.financieros') }}" class="nav-link">
+                    <i class="bi bi-graph-up"></i> Reportes Financieros
+                </a>
+            </li>
+        @endif
+
+        {{-- MENÚ PARA VETERINARIO --}}
+        @if(auth()->user()->canAccessMedical())
+            <li class="nav-item">
+                <a href="{{ route('citas.mis-citas') }}" class="nav-link">
+                    <i class="bi bi-calendar"></i> Mis Citas
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('historiales.index') }}" class="nav-link">
+                    <i class="bi bi-file-text"></i> Historiales
+                </a>
+            </li>
+        @endif
+
+        {{-- MENÚ PARA RECEPCIONISTA Y GERENTE --}}
+        @if(auth()->user()->canManageCitas())
+            <li class="nav-item">
+                <a href="{{ route('clientes.index') }}" class="nav-link">
+                    <i class="bi bi-person-badge"></i> Clientes
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('mascotas.index') }}" class="nav-link">
+                    <i class="bi bi-heart"></i> Mascotas
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('citas.index') }}" class="nav-link">
+                    <i class="bi bi-calendar-check"></i> Citas
+                </a>
+            </li>
+        @endif
+
+        {{-- MENÚ PARA USUARIOS PÚBLICOS --}}
+        @if(auth()->user()->isPublic())
+            <li class="nav-item">
+                <a href="{{ route('mascotas.index') }}" class="nav-link">
+                    <i class="bi bi-heart"></i> Mis Mascotas
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('citas.mis-citas') }}" class="nav-link">
+                    <i class="bi bi-calendar"></i> Mis Citas
+                </a>
+            </li>
+        @endif
+
+        {{-- CERRAR SESIÓN (para todos) --}}
+        <li class="nav-item border-top mt-3 pt-3">
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-link nav-link text-danger">
+                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                </button>
+            </form>
+        </li>
+    </ul>
+</nav>
+
+
+{{-- ============ TARJETAS DE INFORMACIÓN CON GATES ============ --}}
+
+@if(Gate::allows('access-billing'))
+    <div class="card alert-info">
+        <h5>Acceso a Facturación</h5>
+        <p>Puedes gestionar ventas y compras</p>
+    </div>
+@endif
+
+@if(Gate::allows('access-medical'))
+    <div class="card alert-success">
+        <h5>Acceso a Historiales Médicos</h5>
+        <p>Puedes ver y editar diagnósticos</p>
+    </div>
+@endif
+
+@if(Gate::denies('manage-citas'))
+    <div class="alert alert-warning">
+        No tienes permiso para gestionar citas.
+    </div>
+@endif

@@ -56,7 +56,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="9" class="text-center">No hay citas registradas.</td>
+                                    <td colspan="10" class="text-center">No hay citas registradas.</td>
                                 </tr>
                                 @endforelse
                             </tbody>
