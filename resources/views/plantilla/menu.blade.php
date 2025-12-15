@@ -1,14 +1,14 @@
-<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+<aside class="app-sidebar shadow" style="background: linear-gradient(180deg, #f5f5f5 0%, #ffffff 100%); border-right: 3px solid var(--primary-color);" data-bs-theme="light">
     <!--begin::Sidebar Brand-->
-    <div class="sidebar-brand">
+    <div class="sidebar-brand" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); border-bottom: none;">
         <!--begin::Brand Link-->
-        <a href="../index.html" class="brand-link">
+        <a href="{{route('dashboard')}}" class="brand-link">
             <!--begin::Brand Image-->
-            <img src="{{asset('assets/favicon_1.ico')}}" alt="Sistema Logo"
-                class="brand-image opacity-75 shadow" />
+            <img src="{{asset('assets/img/logo.jpg')}}" alt="Happy Paws Logo"
+                class="brand-image opacity-100 shadow" style="height: 40px; width: auto;" />
             <!--end::Brand Image-->
             <!--begin::Brand Text-->
-            <span class="brand-text fw-light">Compubinsas</span>
+            <span class="brand-text fw-bold text-white">Happy Paws</span>
             <!--end::Brand Text-->
         </a>
         <!--end::Brand Link-->
@@ -20,12 +20,12 @@
             <!--begin::Sidebar Menu-->
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
                 <li class="nav-item">
-                    <a href="{{route('dashboard')}}" class="nav-link" id="itemDashboard">
-                        <i class="nav-icon bi bi-speedometer"></i>
+                    <a href="{{route('dashboard')}}" class="nav-link" id="itemDashboard" style="color: var(--text-primary);">
+                        <i class="nav-icon bi bi-calendar-check" style="color: var(--primary-color);"></i>
                         <p>Dashboard</p>
                     </a>
                 </li>
-                @canany(['unidades_list', 'productos_list'])
+                @canany(['citas_list', 'pacientes_list'])
                 <li class="nav-item" id="mnuAlmacen">
                     <a href="#" class="nav-link">                        
                         <i class="bi bi-archive-fill"></i>

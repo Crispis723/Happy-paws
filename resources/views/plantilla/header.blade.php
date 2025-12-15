@@ -1,15 +1,15 @@
-<nav class="app-header navbar navbar-expand bg-body">
+<nav class="app-header navbar navbar-expand" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);">
     <!--begin::Container-->
     <div class="container-fluid">
         <!--begin::Start Navbar Links-->
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                <a class="nav-link text-white" data-lte-toggle="sidebar" href="#" role="button">
                     <i class="bi bi-list"></i>
                 </a>
             </li>
-            <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Ventas</a></li>
-            <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Productos</a></li>
+            <li class="nav-item d-none d-md-block"><a href="#" class="nav-link text-white">Citas</a></li>
+            <li class="nav-item d-none d-md-block"><a href="#" class="nav-link text-white">Pacientes</a></li>
         </ul>
         <!--end::Start Navbar Links-->
         <!--begin::End Navbar Links-->
@@ -25,12 +25,12 @@
             <!--begin::User Menu Dropdown-->
             @if(Auth::check())
             <li class="nav-item dropdown user-menu">
-                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                <a href="#" class="nav-link dropdown-toggle text-white" data-bs-toggle="dropdown">
                     <span class="d-none d-md-inline">{{Auth::user()->name}}</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
                     <!--begin::User Image-->
-                    <li class="user-header text-bg-primary">
+                    <li class="user-header" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); color: white;">
                         <p>
                             {{Auth::user()->name}}
                         </p>

@@ -24,12 +24,13 @@ use Illuminate\Http\Request;
 
 Route::middleware('guest')->group(function () {
     Route::get('/', function () {
-        return view('autenticacion.login');
-    });
+        return view('landing');
+    })->name('landing');
     Route::get('login', function(){
         return view('autenticacion.login');
     })->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
 
 Route::middleware(['auth'])->group(function () {

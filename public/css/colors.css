@@ -1,0 +1,247 @@
+/* ============================================
+   PALETA GLOBAL DE COLORES - HAPPY PAWS
+   Se aplica a todo el proyecto
+   ============================================ */
+
+:root {
+  /* COLORES PRINCIPALES */
+  --primary-color: #B98BC9;      /* Púrpura principal */
+  --secondary-color: #7A1AC9;    /* Púrpura oscuro */
+  --accent-color: #D6A469;       /* Dorado/Acentos */
+  
+  /* COLORES NEUTROS */
+  --background-color: #FFFFFF;   /* Blanco */
+  --text-primary: #000000;       /* Negro */
+  --text-secondary: #7FC1D1;     /* Teal/Gris azulado */
+  --gray-light: #F5F5F5;         /* Gris claro */
+  --gray-medium: #E0E0E0;        /* Gris medio */
+  --gray-dark: #333333;          /* Gris oscuro */
+  
+  /* SOMBRAS */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+  
+  /* TRANSICIONES */
+  --transition: all 0.3s ease-in-out;
+  --transition-smooth: 0.2s ease-in-out;
+}
+
+/* ============================================
+   APLICAR COLORES A ELEMENTOS HTML GLOBALES
+   ============================================ */
+
+/* Links */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+a:hover {
+  color: var(--secondary-color);
+}
+
+/* Botones */
+button, input[type="button"], input[type="submit"] {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  transition: var(--transition);
+}
+
+button:hover, input[type="button"]:hover, input[type="submit"]:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Inputs y campos de formulario */
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+input[type="number"], 
+textarea, 
+select {
+  border: 2px solid var(--gray-medium);
+  border-radius: 6px;
+  padding: 0.5rem;
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+input[type="text"]:focus, 
+input[type="email"]:focus, 
+input[type="password"]:focus, 
+input[type="number"]:focus, 
+textarea:focus, 
+select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(185, 139, 201, 0.1);
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+}
+
+h1 { color: var(--primary-color); }
+h2 { color: var(--secondary-color); }
+
+/* Tablas */
+table {
+  border-collapse: collapse;
+}
+
+table thead {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+table tbody tr:hover {
+  background-color: var(--gray-light);
+}
+
+table th, table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--gray-medium);
+}
+
+/* Alertas y mensajes */
+.alert, .message {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-error, .alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.alert-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.alert-warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+/* Cards/Tarjetas */
+.card {
+  border: 1px solid var(--gray-medium);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+}
+
+.card-header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 1rem;
+  margin: -1.5rem -1.5rem 1rem -1.5rem;
+  border-radius: 8px 8px 0 0;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.badge-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.badge-secondary {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.badge-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.badge-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Bordes con color */
+.border-primary {
+  border-color: var(--primary-color) !important;
+}
+
+.border-secondary {
+  border-color: var(--secondary-color) !important;
+}
+
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.text-secondary {
+  color: var(--secondary-color) !important;
+}
+
+.text-accent {
+  color: var(--accent-color) !important;
+}
+
+/* Fondo con colores */
+.bg-primary {
+  background-color: var(--primary-color) !important;
+  color: white;
+}
+
+.bg-secondary {
+  background-color: var(--secondary-color) !important;
+  color: white;
+}
+
+.bg-accent {
+  background-color: var(--accent-color) !important;
+}
+
+/* Línea separadora con color */
+hr, .divider {
+  border-color: var(--gray-medium);
+}
+
+hr.primary {
+  border-color: var(--primary-color);
+}
+
+/* Estado activo */
+.active {
+  color: var(--primary-color) !important;
+  font-weight: 600;
+}
+
+.active-link {
+  border-bottom: 3px solid var(--primary-color);
+  padding-bottom: 0.25rem;
+}

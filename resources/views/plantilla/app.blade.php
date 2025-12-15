@@ -39,6 +39,9 @@
       href="{{asset('bootstrap-icons-1.13.1/bootstrap-icons.min.css')}}"
     />
     <!--end::Third Party Plugin(Bootstrap Icons)-->
+    <!--begin::Global Colors CSS-->
+    <link rel="stylesheet" href="{{asset('css/colors.css')}}" />
+    <!--end::Global Colors CSS-->
     <!--begin::Required Plugin(AdminLTE)-->
     <link rel="stylesheet" href="{{asset('css/adminlte.css')}}" />
     <!--end::Required Plugin(AdminLTE)-->

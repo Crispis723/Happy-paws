@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <!--begin::Head-->
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -39,7 +39,7 @@
     />
     <!--end::Third Party Plugin(Bootstrap Icons)-->
     <!--begin::Required Plugin(AdminLTE)-->
-    <link rel="stylesheet" href="{{asset('css/adminlte.css')}}" />
+    <link rel="stylesheet" href="{{ asset('css/colors.css') }}">
     <!--end::Required Plugin(AdminLTE)-->
   </head>
   <!--end::Head-->
@@ -52,7 +52,8 @@
             href="/"
             class="link-dark text-center link-offset-2 link-opacity-100 link-opacity-50-hover"
           >
-            <h1 class="mb-0"><b>Proyecto - ADSO</b></h1>
+          <img src="{{ asset('assets/img/logo.jpg') }}" alt="Happy Paws" class="logo-img"> 
+          <h1 class="mb-0"><b>Happy paws</b></h1>
           </a>
         </div>
         <div class="card-body login-card-body bg-dark-subtle">
@@ -98,12 +99,12 @@
           </form>
           
           <!-- /.social-auth-links -->
-           <!--
-          <p class="mb-1"><a href="forgot-password.html">I forgot my password</a></p>
+           
+          <p class="mb-1"><a href="forgot-password.html">¿Olvidaste tu contraseña?</a></p>
           <p class="mb-0">
-            <a href="register.html" class="text-center"> Register a new membership </a>
+            <a href="register.html" class="text-center"> Regístrate </a>
           </p>
-          -->
+          
         </div>
         <!-- /.login-card-body -->
       </div>
