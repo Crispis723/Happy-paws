@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    libzip-dev \
     default-mysql-client \
     && rm -rf /var/lib/apt/lists/*
 
@@ -16,7 +17,8 @@ RUN docker-php-ext-install \
     pdo_mysql \
     mbstring \
     bcmath \
-    gd
+    gd \
+    zip
 
 RUN a2enmod rewrite
 
@@ -26,7 +28,7 @@ COPY . /var/www/html
 
 WORKDIR /var/www/html
 
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 RUN mkdir -p storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache
