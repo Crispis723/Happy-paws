@@ -28,10 +28,11 @@ COPY . /var/www/html
 
 WORKDIR /var/www/html
 
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
+# Crear directorios requeridos antes de composer install (package:discover falla si no existen)
 RUN mkdir -p storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache
+
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 EXPOSE 10000
 RUN sed -i 's/80/10000/g' /etc/apache2/ports.conf /etc/apache2/sites-available/000-default.conf
