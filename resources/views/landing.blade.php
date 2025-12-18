@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{asset('css/colors.css')}}" />
     <link rel="stylesheet" href="{{asset('css/landing.css')}}" />
     <link rel="stylesheet" href="{{asset('css/auth-modal.css')}}" />
-    <link rel="stylesheet" href="{{asset('bootstrap-icons-1.13.1/bootstrap-icons.min.css')}}" />
+    <link rel="stylesheet" href="{{asset('assets/bootstrap-icons-1.13.1/bootstrap-icons.min.css')}}" />
   </head>
   <body>
     <!-- Header -->

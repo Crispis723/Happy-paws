@@ -35,12 +35,13 @@
     <!--begin::Third Party Plugin(Bootstrap Icons)-->
     <link
       rel="stylesheet"
-      href="{{asset('bootstrap-icons-1.13.1/bootstrap-icons.min.css')}}"
+      href="{{asset('assets/bootstrap-icons-1.13.1/bootstrap-icons.min.css')}}"
     />
     <!--end::Third Party Plugin(Bootstrap Icons)-->
-    <!--begin::Required Plugin(AdminLTE)-->
+    <!--begin::Required Styles (Bootstrap/AdminLTE + colores)-->
+    <link rel="stylesheet" href="{{ asset('css/adminlte.css') }}">
     <link rel="stylesheet" href="{{ asset('css/colors.css') }}">
-    <!--end::Required Plugin(AdminLTE)-->
+    <!--end::Required Styles-->
   </head>
   <!--end::Head-->
   <!--begin::Body-->
