@@ -22,10 +22,12 @@
           <a href="#inicio">Inicio</a>
           <a href="#servicios">Servicios</a>
           <a href="#contacto">Contacto</a>
+          {{-- Cargar bundles de Vite para asegurar CSS/JS en producción --}}
+          @vite(['resources/css/app.css', 'resources/js/app.js'])
           @guest
             <a href="#" onclick="openAuthModal()" class="btn-secondary">Ingresar</a>
           @else
-            <a href="{{ route('dashboard') }}" class="btn-secondary">Dashboard</a>
+          <link rel="stylesheet" href="{{asset('assets/bootstrap-icons-1.13.1/bootstrap-icons.min.css')}}" />
           @endguest
         </div>
         <button class="btn-menu hidden-md" id="menuBtn" type="button">
