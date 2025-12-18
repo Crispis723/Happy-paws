@@ -33,22 +33,22 @@
     <!--begin::Third Party Plugin(OverlayScrollbars)-->
     <link
       rel="stylesheet"
-      href="{{asset('css/overlayscrollbars.min.css')}}"
+      href="{{ secure_asset('css/overlayscrollbars.min.css') }}"
     />
     <!--end::Third Party Plugin(OverlayScrollbars)-->
     <!--begin::Third Party Plugin(Bootstrap Icons)-->
     <link
       rel="stylesheet"
-      href="{{asset('assets/bootstrap-icons-1.13.1/bootstrap-icons.min.css')}}"
+      href="{{ secure_asset('assets/bootstrap-icons-1.13.1/bootstrap-icons.min.css') }}"
     />
     <!--end::Third Party Plugin(Bootstrap Icons)-->
     <!--begin::Global Colors CSS-->
-    <link rel="stylesheet" href="{{asset('css/colors.css')}}" />
+    <link rel="stylesheet" href="{{ secure_asset('css/colors.css') }}" />
     <!--end::Global Colors CSS-->
     <!--begin::Required Plugin(AdminLTE)-->
-    <link rel="stylesheet" href="{{asset('css/adminlte.css')}}" />
+    <link rel="stylesheet" href="{{ secure_asset('css/adminlte.css') }}" />
     <!--end::Required Plugin(AdminLTE)-->
-    <link rel="stylesheet" href="{{asset('datatables/dataTables.bootstrap5.css')}}">
+    <link rel="stylesheet" href="{{ secure_asset('datatables/dataTables.bootstrap5.css') }}">
     @stack('estilos')
   </head>
   <!--end::Head-->
@@ -89,23 +89,23 @@
     <!--begin::Script-->
     <!--begin::Third Party Plugin(OverlayScrollbars)-->
     <script
-      src="{{asset('js/overlayscrollbars.browser.es6.min.js')}}"
+      src="{{ secure_asset('js/overlaysscrollbars.browser.es6.min.js') }}"
     ></script>
     <!--end::Third Party Plugin(OverlayScrollbars)--><!--begin::Required Plugin(popperjs for Bootstrap 5)-->
     <script
-      src="{{asset('js/popper.min.js')}}"
+      src="{{ secure_asset('js/popper.min.js') }}"
     ></script>
     <!--end::Required Plugin(popperjs for Bootstrap 5)--><!--begin::Required Plugin(Bootstrap 5)-->
     <script
-      src="{{asset('js/bootstrap.min.js')}}"
+      src="{{ secure_asset('js/bootstrap.min.js') }}"
     ></script>
     <!--end::Required Plugin(Bootstrap 5)--><!--begin::Required Plugin(AdminLTE)-->
-    <script src="{{asset('js/adminlte.js')}}"></script>
-    <script src="{{asset('datatables/jquery-3.7.1.js')}}"></script>
-    <script src="{{asset('datatables/dataTables.js')}}"></script>
-    <script src="{{asset('datatables/dataTables.bootstrap5.js')}}"></script>
-    <script src="{{asset('js/sweetalert2.js')}}"></script>
-    <script src="{{asset('js/crud.js')}}"></script>
+    <script src="{{ secure_asset('js/adminlte.js') }}"></script>
+    <script src="{{ secure_asset('datatables/jquery-3.7.1.js') }}"></script>
+    <script src="{{ secure_asset('datatables/dataTables.js') }}"></script>
+    <script src="{{ secure_asset('datatables/dataTables.bootstrap5.js') }}"></script>
+    <script src="{{ secure_asset('js/sweetalert2.js') }}"></script>
+    <script src="{{ secure_asset('js/crud.js') }}"></script>
     @stack('scripts')
     <!--end::Required Plugin(AdminLTE)--><!--begin::OverlayScrollbars Configure-->
     <script>
