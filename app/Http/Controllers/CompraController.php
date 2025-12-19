@@ -22,7 +22,8 @@ use BaconQrCode\Writer;
 class CompraController extends Controller
 {
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->middleware('can:compras_list')->only(['index']);
         $this->middleware('can:compras_create')->only(['store']);
         $this->middleware('can:compras_edit')->only(['show', 'update']);
@@ -33,45 +34,15 @@ class CompraController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            $data = Compra::with(['proveedor', 'user', 'comprobanteTipo' ])
-             ->select(['id', 'fecha', 'forma_pago', 'serie', 'correlativo', 'impuesto', 'total', 'estado', 
-             'proveedor_id', 'user_id', 'comprobante_tipo_codigo'])->orderBy('id', 'desc');
+        // Obtener compras paginadas (10 por página)
+        // with() = cargar relaciones (evita N+1)
+        // orderBy() = ordenar por más reciente primero
+        $compras = Compra::with(['proveedor', 'comprobanteTipo', 'user'])
+            ->orderBy('fecha', 'desc')
+            ->paginate(10);
 
-            return DataTables::of($data)
-                ->addColumn('action', function ($row) {
-                    $editButton ='';
-                    if(auth()->user()->can('compras_edit')){
-                        $editButton = view('components.button-edit', ['id' => $row->id])->render();
-                    }
-                    $deleteButton = '';
-                    if(auth()->user()->can('compras_delete')){
-                        $deleteButton = view('components.button-delete', ['id' => $row->id])->render();
-                    }
-                    $ticketButton= '<a href="' . route('compras.imprimir', $row->id) . '" 
-                        target="_blank" 
-                        class="btn btn-sm btn-secondary" 
-                        title="Ver Comprobante">
-                        <i class="bi bi-printer"></i>
-                     </a>';
-
-                    // Combinar ambos botones en una cadena y devolverla
-                    return $editButton . $deleteButton. $ticketButton;
-                })
-                ->addColumn('usuario', function ($row) {
-                    return optional($row->user)->name;
-                })
-                ->editColumn('proveedor', function ($row) {
-                    return optional($row->proveedor)->razon_social;
-                })
-                ->editColumn('tipo_comprobante', function ($row) {
-                    return optional($row->comprobanteTipo)->descripcion;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
-        }
-
-        return view('compras.index');
+        // Pasar a la vista
+        return view('compras.index', compact('compras'));
     }
 
     /**
@@ -79,7 +50,17 @@ class CompraController extends Controller
      */
     public function create()
     {
-        //
+        // Obtener proveedores (para dropdown)
+        $proveedores = \App\Models\Proveedor::all();
+
+        // Obtener tipos de comprobante (Factura, Boleta, etc)
+        $comprobanteTipos = \App\Models\ComprobanteTipo::all();
+
+        // Obtener productos (para agregar a detalles)
+        $productos = \App\Models\Producto::all();
+
+        // Enviar a la vista
+        return view('compras.create', compact('proveedores', 'comprobanteTipos', 'productos'));
     }
 
     /**
@@ -87,30 +68,23 @@ class CompraController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $this->validateData($request);
+        // 1. VALIDAR DATOS
+        $data = $this->validateCompra($request);
 
-        DB::beginTransaction();
-        try {
-            $compraData = $this->processCompraData($data, true);
-            
-            $compra = Compra::create($compraData['compra']);
-            $compra->detalles()->createMany($compraData['detalles']);
-            Producto::updateStock(true,$compraData['detalles']);
+        // 2. CREAR COMPRA EN BD
+        $compra = Compra::create([
+            'fecha' => $data['fecha'],
+            'proveedor_id' => $data['proveedor_id'],
+            'comprobante_tipo_codigo' => $data['comprobante_tipo_codigo'],
+            'forma_pago' => $data['forma_pago'],
+            'total' => $data['total'],
+            'estado' => 'pendiente',
+            'user_id' => auth()->id(),  // Usuario que la crea
+        ]);
 
-            DB::commit();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Registro creado satisfactoriamente',
-                'compra_id' => $compra->id
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al crear el registro: ' . $e->getMessage()
-            ], 500);
-        }
+        // 3. REDIRIGIR
+        return redirect()->route('compras.show', $compra->id)
+            ->with('success', 'Compra creada exitosamente.');
     }
 
     /**
@@ -119,31 +93,30 @@ class CompraController extends Controller
     public function show($id)
     {
         try {
-            //$registro = Venta::with(['detalles.producto.afectacionTipo', 'cliente'])->findOrFail($id);
-            $registro = Compra::with([
-                'detalles.producto' => function ($query) {
-                    $query->select('id', 'afectacion_tipo_codigo', 'codigo', 'nombre', 'precio_unitario');
-                },
-                'detalles.producto.afectacionTipo' => function ($query) {
-                    $query->select('codigo', 'descripcion', 'porcentaje');
-                },
-                'proveedor' => function ($query) {
-                    $query->select('id', 'razon_social');
-                }
-            ])->findOrFail($id);
+            // Obtener compra con sus relaciones
+            $compra = Compra::with(['proveedor', 'comprobanteTipo', 'user', 'detalles'])
+                ->findOrFail($id);
 
-            return response()->json($registro);
+            return view('compras.show', compact('compra'));
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Registro no encontrado'], 404);
+            return redirect()->route('compras.index')
+                ->with('error', 'Compra no encontrada.');
         }
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Compra $compra)
+    public function edit($id)
     {
-        //
+        // Obtener la compra
+        $compra = Compra::findOrFail($id);
+
+        // Obtener opciones para dropdowns
+        $proveedores = \App\Models\Proveedor::all();
+        $comprobanteTipos = \App\Models\ComprobanteTipo::all();
+
+        return view('compras.edit', compact('compra', 'proveedores', 'comprobanteTipos'));
     }
 
     /**
@@ -151,32 +124,18 @@ class CompraController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Validar
+        $data = $this->validateCompra($request, $id);
+
+        // Obtener compra
         $compra = Compra::findOrFail($id);
-        $data = $this->validateData($request);
 
-        DB::beginTransaction();
-        try {
-            $compraData = $this->processCompraData($data, false);
-            
-            $compra->update($compraData['compra']);
-            Producto::updateStock(false,$compra->detalles->toArray()); 
-            $compra->detalles()->delete();
-            $compra->detalles()->createMany($compraData['detalles']);
-            Producto::updateStock(true,$compraData['detalles']);
+        // Actualizar
+        $compra->update($data);
 
-            DB::commit();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Registro actualizado satisfactoriamente'
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al actualizar el registro: ' . $e->getMessage()
-            ], 500);
-        }
+        // Redirigir
+        return redirect()->route('compras.show', $compra->id)
+            ->with('success', 'Compra actualizada exitosamente.');
     }
 
     /**
@@ -185,20 +144,16 @@ class CompraController extends Controller
     public function destroy($id)
     {
         try {
-            $registro = Compra::findOrFail($id);
-            Producto::updateStock(false,$registro->detalles->toArray()); 
-            $registro->delete();
+            $compra = Compra::findOrFail($id);
+            $compra->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Registro eliminado correctamente'
-            ]);
+            return redirect()->route('compras.index')
+                ->with('success', 'Compra eliminada exitosamente.');
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Error al eliminar el registro'
-            ], 500);
+            return redirect()->route('compras.index')
+                ->with('error', 'Error al eliminar.');
         }
-    }   
+    }
     private function processCompraData(array $data, bool $isNew = true)
     {
         // Obtener productos con su tipo de afectación
@@ -259,8 +214,8 @@ class CompraController extends Controller
         $precio_unitario = $precio_unitario_input;
         $porcentajeImpuesto = optional($producto->afectacionTipo)->porcentaje ?? 0;
 
-        $valor_unitario = $porcentajeImpuesto > 0 
-            ? $precio_unitario / (1 + $porcentajeImpuesto) 
+        $valor_unitario = $porcentajeImpuesto > 0
+            ? $precio_unitario / (1 + $porcentajeImpuesto)
             : $precio_unitario;
 
         $subtotal = $valor_unitario * $cantidad;
@@ -310,18 +265,32 @@ class CompraController extends Controller
     }
 
 
-    public function printTicket($id){
-        $compra = Compra::with(['proveedor','detalles.producto.afectacionTipo'])->findOrFail($id);
+    public function printTicket($id)
+    {
+        $compra = Compra::with(['proveedor', 'detalles.producto.afectacionTipo'])->findOrFail($id);
 
-        $empresa = (object)[
+        $empresa = (object) [
             'razon_social' => 'Proyecto - Sena - Adso',
             'direccion' => 'Av. Carrera 14 con Calle 65-14',
             'ruc' => '1010101010'
         ];
 
-        $pdf = Pdf::loadView('compras.ticket', compact('compra','empresa'))
-                ->setPaper([0,0,240,800]);
+        // La vista existente está en recursos/views/compras/partials/ticket.blade.php
+        $pdf = Pdf::loadView('compras.partials.ticket', compact('compra', 'empresa'))
+            ->setPaper([0, 0, 240, 800]);
 
         return $pdf->stream("ticket_{$compra->id}.pdf");
     }
+
+    protected function validateCompra(Request $request, $id = null)
+    {
+        return $request->validate([
+            'fecha' => 'required|date',
+            'proveedor_id' => 'required|exists:proveedores,id',
+            'comprobante_tipo_codigo' => 'required|exists:comprobante_tipos,codigo',
+            'forma_pago' => 'required|in:efectivo,cheque,transferencia,tarjeta',
+            'total' => 'required|numeric|min:0',
+        ]);
+    }
 }
+

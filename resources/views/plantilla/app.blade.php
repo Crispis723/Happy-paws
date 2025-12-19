@@ -89,7 +89,7 @@
     <!--begin::Script-->
     <!--begin::Third Party Plugin(OverlayScrollbars)-->
     <script
-      src="{{ secure_asset('js/overlaysscrollbars.browser.es6.min.js') }}"
+      src="{{ secure_asset('js/overlayscrollbars.browser.es6.min.js') }}"
     ></script>
     <!--end::Third Party Plugin(OverlayScrollbars)--><!--begin::Required Plugin(popperjs for Bootstrap 5)-->
     <script

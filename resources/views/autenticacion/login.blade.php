@@ -35,12 +35,12 @@
     <!--begin::Third Party Plugin(Bootstrap Icons)-->
     <link
       rel="stylesheet"
-      href="{{asset('assets/bootstrap-icons-1.13.1/bootstrap-icons.min.css')}}"
+      href="{{ secure_asset('assets/bootstrap-icons-1.13.1/bootstrap-icons.min.css') }}"
     />
     <!--end::Third Party Plugin(Bootstrap Icons)-->
     <!--begin::Required Styles (Bootstrap/AdminLTE + colores)-->
-    <link rel="stylesheet" href="{{ asset('css/adminlte.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/colors.css') }}">
+    <link rel="stylesheet" href="{{ secure_asset('css/adminlte.css') }}">
+    <link rel="stylesheet" href="{{ secure_asset('css/colors.css') }}">
     <!--end::Required Styles-->
   </head>
   <!--end::Head-->
@@ -113,18 +113,18 @@
     <!-- /.login-box -->
     <!--begin::Third Party Plugin(OverlayScrollbars)-->
     <script
-      src="{{asset('js/overlayscrollbars.browser.es6.min.js')}}"
+      src="{{ secure_asset('js/overlayscrollbars.browser.es6.min.js') }}"
     ></script>
     <!--end::Third Party Plugin(OverlayScrollbars)--><!--begin::Required Plugin(popperjs for Bootstrap 5)-->
     <script
-      src="{{asset('js/popper.min.js')}}"
+      src="{{ secure_asset('js/popper.min.js') }}"
     ></script>
     <!--end::Required Plugin(popperjs for Bootstrap 5)--><!--begin::Required Plugin(Bootstrap 5)-->
     <script
-      src="{{asset('js/bootstrap.min.js')}}"
+      src="{{ secure_asset('js/bootstrap.min.js') }}"
     ></script>
     <!--end::Required Plugin(Bootstrap 5)--><!--begin::Required Plugin(AdminLTE)-->
-    <script src="{{asset('js/adminlte.js')}}"></script>
+    <script src="{{ secure_asset('js/adminlte.js') }}"></script>
     <script>
       const SELECTOR_SIDEBAR_WRAPPER = '.sidebar-wrapper';
       const Default = {

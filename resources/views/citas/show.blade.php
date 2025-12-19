@@ -4,42 +4,114 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">Detalle de Cita</div>
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Detalle de Cita</h5>
+                    <span class="badge bg-light text-dark">{{ ucfirst($cita->estado ?? 'pendiente') }}</span>
+                </div>
                 <div class="card-body">
                     <dl class="row">
-                        <dt class="col-sm-4">Fecha y Hora</dt>
-                        <dd class="col-sm-8">{{ optional($cita->fecha_hora)->format('Y-m-d H:i') }}</dd>
+                        {{-- Fecha y Hora --}}
+                        <dt class="col-sm-4 fw-bold">Fecha y Hora</dt>
+                        <dd class="col-sm-8">
+                            @if($cita->fecha_hora)
+                                <i class="bi bi-calendar-event"></i>
+                                {{ optional($cita->fecha_hora)->format('d/m/Y H:i') }}
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </dd>
 
-                        <dt class="col-sm-4">Cliente</dt>
+                        {{-- Cliente --}}
+                        <dt class="col-sm-4 fw-bold">Cliente</dt>
                         <dd class="col-sm-8">{{ $cita->cliente_nombre }}</dd>
 
-                        <dt class="col-sm-4">Teléfono</dt>
-                        <dd class="col-sm-8">{{ $cita->cliente_telefono }}</dd>
+                        {{-- Teléfono --}}
+                        <dt class="col-sm-4 fw-bold">Teléfono</dt>
+                        <dd class="col-sm-8">
+                            @if($cita->cliente_telefono)
+                                <a href="tel:{{ $cita->cliente_telefono }}" class="text-decoration-none">
+                                    {{ $cita->cliente_telefono }}
+                                </a>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </dd>
 
-                        <dt class="col-sm-4">Mascota</dt>
-                        <dd class="col-sm-8">{{ $cita->mascota_nombre }}</dd>
+                        {{-- Mascota --}}
+                        <dt class="col-sm-4 fw-bold">Mascota</dt>
+                        <dd class="col-sm-8">
+                            <strong>{{ $cita->mascota_nombre }}</strong>
+                            @if($cita->mascota->exists ?? false)
+                                <a href="{{ route('mascotas.show', $cita->mascota) }}" class="ms-2" title="Ver perfil completo">
+                                    <i class="bi bi-arrow-up-right"></i>
+                                </a>
+                            @endif
+                        </dd>
 
-                        <dt class="col-sm-4">Especie</dt>
+                        {{-- Especie --}}
+                        <dt class="col-sm-4 fw-bold">Especie</dt>
                         <dd class="col-sm-8">{{ $cita->mascota_especie }}</dd>
 
-                        <dt class="col-sm-4">Veterinario</dt>
-                        <dd class="col-sm-8">{{ optional($cita->veterinario)->name ?? '-' }}</dd>
+                        {{-- Veterinario --}}
+                        <dt class="col-sm-4 fw-bold">Veterinario</dt>
+                        <dd class="col-sm-8">
+                            @if($cita->veterinario)
+                                <strong>{{ $cita->veterinario->name }}</strong>
+                            @else
+                                <span class="text-muted">Sin asignar</span>
+                            @endif
+                        </dd>
 
-                        <dt class="col-sm-4">Motivo</dt>
-                        <dd class="col-sm-8">{{ $cita->motivo }}</dd>
+                        {{-- Motivo --}}
+                        <dt class="col-sm-4 fw-bold">Motivo</dt>
+                        <dd class="col-sm-8">
+                            <p class="mb-0">{{ $cita->motivo }}</p>
+                        </dd>
 
-                        <dt class="col-sm-4">Estado</dt>
-                        <dd class="col-sm-8">{{ ucfirst($cita->estado ?? 'pendiente') }}</dd>
+                        {{-- Estado --}}
+                        <dt class="col-sm-4 fw-bold">Estado</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-info">{{ ucfirst($cita->estado ?? 'pendiente') }}</span>
+                        </dd>
 
-                        <dt class="col-sm-4">Precio</dt>
-                        <dd class="col-sm-8">{{ $cita->precio ? number_format($cita->precio,2) : '-' }}</dd>
+                        {{-- Precio --}}
+                        <dt class="col-sm-4 fw-bold">Precio</dt>
+                        <dd class="col-sm-8">
+                            @if($cita->precio)
+                                <strong class="text-success">S/. {{ number_format($cita->precio, 2) }}</strong>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </dd>
 
-                        <dt class="col-sm-4">Notas</dt>
-                        <dd class="col-sm-8">{{ $cita->notas ?? '-' }}</dd>
+                        {{-- Notas --}}
+                        @if($cita->notas)
+                        <dt class="col-sm-4 fw-bold">Notas</dt>
+                        <dd class="col-sm-8">
+                            <div class="alert alert-light border" role="alert">
+                                {{ $cita->notas }}
+                            </div>
+                        </dd>
+                        @endif
                     </dl>
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ route('citas.index') }}" class="btn btn-secondary">Volver</a>
-                        <a href="{{ route('citas.edit', $cita) }}" class="btn btn-primary">Editar</a>
+
+                    {{-- Action Buttons --}}
+                    <div class="d-flex justify-content-between gap-2 mt-4">
+                        <a href="{{ route('citas.index') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Volver
+                        </a>
+                        <div>
+                            <a href="{{ route('citas.edit', $cita) }}" class="btn btn-primary">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                            <form action="{{ route('citas.destroy', $cita) }}" method="POST" style="display: inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar esta cita?');">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -47,12 +119,7 @@
     </div>
 </div>
 @endsection
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-    const mnuVenta = document.getElementById('mnuVenta');
-    if(mnuVenta) mnuVenta.classList.add('menu-open');
-    const item = document.getElementById('itemCitasIndex');
+
     if(item) item.classList.add('active');
 });
 </script>

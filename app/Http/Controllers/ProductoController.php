@@ -20,155 +20,265 @@ class ProductoController extends Controller
         $this->middleware('can:productos_delete')->only(['destroy']);
     }
     /**
-     * Display a listing of the resource.
+     * Mostrar listado de productos (index)
+     * 
+     * ¿QUÉ HACE?
+     * - Obtiene todos los productos de la BD
+     * - Los ordena por más nuevo primero
+     * - Los pagina (10 por página)
+     * - Los envía a la vista para mostrar en tabla
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            $data = Producto::select(
-                ['id','unidad_codigo',
-                'afectacion_tipo_codigo',
-                'codigo',
-                'nombre',
-                'precio_unitario',
-                'stock',             
-                'imagen'                
-                ])->orderBy('id','desc');
-
-            return DataTables::of($data)
-                ->addColumn('action', function ($row) {                 
-                    $editButton ='';
-                    if(auth()->user()->can('productos_edit')){
-                        $editButton = view('components.button-edit', ['id' => $row->id])->render();
-                    }
-                    $deleteButton = '';
-                    if(auth()->user()->can('productos_delete')){
-                        $deleteButton = view('components.button-delete', ['id' => $row->id])->render();
-                    }
-                    return $editButton . $deleteButton;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
-        }
-        return view('productos.index');
+        // Obtener productos paginados (10 por página)
+        // orderBy('id', 'desc') = Ordenar por ID descendente (más nuevo primero)
+        $productos = Producto::with(['unidad', 'afectacionTipo'])  // Cargar relaciones
+                              ->orderBy('id', 'desc')
+                              ->paginate(10);
+        
+        // Pasar los productos a la vista
+        return view('productos.index', compact('productos'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Mostrar formulario para crear nuevo producto
+     * 
+     * ¿QUÉ HACE?
+     * - Obtiene las unidades disponibles (KG, L, UND, etc)
+     * - Obtiene los tipos de afectación (IGV, no afectado, etc)
+     * - Envía ambas listas a la vista para los dropdowns del formulario
      */
     public function create()
     {
-        //
+        // Obtener unidades para el dropdown
+        $unidades = \App\Models\Unidad::all();  // ALL = Todos los registros
+        
+        // Obtener tipos de afectación para el dropdown
+        $afectacionTipos = \App\Models\AfectacionTipo::all();
+        
+        // Enviar ambas listas a la vista
+        return view('productos.create', compact('unidades', 'afectacionTipos'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Guardar nuevo producto en BD
+     * 
+     * ¿QUÉ HACE?
+     * 1. Valida los datos del formulario
+     * 2. Si hay imagen, la guarda en carpeta uploads/
+     * 3. Crea el producto en la BD
+     * 4. Redirige al listado con mensaje de éxito
      */
     public function store(Request $request)
     {
+        // PASO 1: VALIDAR DATOS
+        // validateProducto() = Método que define las reglas de validación
         $data = $this->validateProducto($request);
 
+        // PASO 2: MANEJAR IMAGEN (si existe)
         if ($request->hasFile('imagen')) {
-            $file = $request->file('imagen');
-            //$filename = time() . '_' . $file->getClientOriginalName();
-            $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+            // hasFile() = ¿Hay un archivo llamado "imagen"?
+            
+            $file = $request->file('imagen');  // Obtener el archivo
+            
+            // Crear nombre único: timestamp + números aleatorios + extensión
+            // Ej: 1703009987_Abc3Xyz5.jpg
+            $filename = time() . '_' . \Illuminate\Support\Str::random(10) . '.' . $file->getClientOriginalExtension();
+            
+            // Mover archivo a carpeta pública
+            // public_path() = Ruta a carpeta /public
             $file->move(public_path('uploads/productos/'), $filename);
+            
+            // Guardar nombre del archivo en los datos a insertar
             $data['imagen'] = $filename;
         }
 
+        // PASO 3: CREAR PRODUCTO
+        // Producto::create() = Insertar nueva fila en tabla "productos"
         Producto::create($data);
 
-        return response()->json([
-            'success'=> true,
-            'message'=>'Registro creado satisfactoriamente'
-        ]);
+        // PASO 4: REDIRIGIR
+        return redirect()->route('productos.index')
+                        ->with('success', 'Producto creado exitosamente.');
     }
 
     /**
-     * Display the specified resource.
+     * Mostrar detalle de un producto
+     * 
+     * ¿QUÉ HACE?
+     * - Busca el producto por ID
+     * - Si no existe, devuelve error 404
+     * - Si existe, envía sus datos a la vista de detalle
      */
     public function show($id)
     {
         try {
-            $registro = Producto::findOrFail($id);
-            return response()->json($registro);
+            // findOrFail() = Buscar por ID, si NO existe → ERROR
+            $producto = Producto::with(['unidad', 'afectacionTipo'])->findOrFail($id);
+            
+            // Enviar producto a la vista
+            return view('productos.show', compact('producto'));
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Registro no encontrado'], 404);
+            // Si no existe, redirigir al listado
+            return redirect()->route('productos.index')
+                            ->with('error', 'Producto no encontrado.');
         }
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Mostrar formulario de edición de producto
+     * 
+     * ¿QUÉ HACE?
+     * - Obtiene el producto por ID
+     * - Obtiene unidades y afectación tipos (para los dropdowns)
+     * - Envía todo a la vista de edición
      */
-    public function edit(Producto $producto)
+    public function edit($id)
     {
-        //
+        // Buscar el producto
+        $producto = Producto::findOrFail($id);
+        
+        // Obtener opciones para dropdowns
+        $unidades = \App\Models\Unidad::all();
+        $afectacionTipos = \App\Models\AfectacionTipo::all();
+        
+        // Enviar a la vista
+        return view('productos.edit', compact('producto', 'unidades', 'afectacionTipos'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualizar producto en BD
+     * 
+     * ¿QUÉ HACE?
+     * 1. Valida los datos nuevos
+     * 2. Si hay imagen nueva, guarda y elimina la vieja
+     * 3. Actualiza el registro en BD
+     * 4. Redirige al detalle con mensaje
      */
     public function update(Request $request, $id)
     {
+        // PASO 1: VALIDAR datos nuevos
+        // El segundo parámetro $id ignora validación única para ESTE registro
         $data = $this->validateProducto($request, $id);
-        $registro = Producto::findOrFail($id);
         
+        // PASO 2: OBTENER producto actual de BD
+        $producto = Producto::findOrFail($id);
+        
+        // PASO 3: MANEJAR imagen nueva (si existe)
         if ($request->hasFile('imagen')) {
-            $file = $request->file('imagen');            
-            //$filename = time() . '_' . $file->getClientOriginalName();
-            $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+            $file = $request->file('imagen');
+            
+            // Crear nombre único
+            $filename = time() . '_' . \Illuminate\Support\Str::random(10) . '.' . $file->getClientOriginalExtension();
+            
+            // Guardar nueva imagen
             $file->move(public_path('uploads/productos/'), $filename);
             $data['imagen'] = $filename;
             
-            $old_image = 'uploads/productos/'.$registro->imagen;
-            if (file_exists($old_image)) {
-                @unlink($old_image);
+            // Eliminar imagen vieja si existe
+            $oldImage = 'uploads/productos/' . $producto->imagen;
+            if (file_exists($oldImage)) {
+                @unlink($oldImage);  // @ = ignorar si hay error
             }
         }
-        $registro->update($data);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Registro actualizado correctamente'
-        ]);
+        
+        // PASO 4: ACTUALIZAR en BD
+        $producto->update($data);
+        
+        // PASO 5: REDIRIGIR
+        return redirect()->route('productos.show', $producto->id)
+                        ->with('success', 'Producto actualizado exitosamente.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Eliminar producto
+     * 
+     * ¿QUÉ HACE?
+     * 1. Busca el producto por ID
+     * 2. Elimina su imagen de la carpeta uploads/
+     * 3. Elimina el registro de la BD
+     * 4. Redirige al listado
      */
     public function destroy($id)
     {
         try {
-            $registro = Producto::findOrFail($id);
-            $old_image = 'uploads/productos/'.$registro->imagen;
-            if (file_exists($old_image)) {
-                @unlink($old_image);
+            // Obtener producto
+            $producto = Producto::findOrFail($id);
+            
+            // Eliminar imagen de la carpeta pública
+            if ($producto->imagen) {
+                $imagePath = 'uploads/productos/' . $producto->imagen;
+                if (file_exists($imagePath)) {
+                    @unlink($imagePath);
+                }
             }
 
-            $registro->delete();
+            // Eliminar registro de BD
+            $producto->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Registro eliminado correctamente'
-            ]);
+            // Redirigir al listado
+            return redirect()->route('productos.index')
+                            ->with('success', 'Producto eliminado exitosamente.');
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Error al eliminar el registro.'
-            ], 500);
+            return redirect()->route('productos.index')
+                            ->with('error', 'Error al eliminar el producto.');
         }
     }
 
-    protected function validateProducto(Request $request)
+    /**
+     * Validar datos del producto
+     * 
+     * ¿QUÉ HACE?
+     * Define las reglas de validación para que un producto sea válido
+     * Estos son las "reglas del juego" que deben cumplir los datos
+     */
+    protected function validateProducto(Request $request, $id = null)
     {
         return $request->validate([
-            'unidad_codigo' => 'required|string|max:3',
-            'afectacion_tipo_codigo' => 'required|string|max:2',
-            'codigo' => 'required|string|max:50',
-            'nombre' => 'required|string|max:50',
-            'descripcion' => 'nullable|string|max:255',
+            // UNIDAD CÓDIGO
+            'unidad_codigo' => 'required|exists:unidades,codigo',
+            // required = obligatorio
+            // exists:unidades,codigo = DEBE existir en tabla unidades, columna codigo
+            
+            // AFECTACIÓN TIPO CÓDIGO
+            'afectacion_tipo_codigo' => 'required|exists:afectacion_tipos,codigo',
+            // Debe existir en tabla afectacion_tipos
+            
+            // CÓDIGO DEL PRODUCTO
+            'codigo' => [
+                'required',
+                'string',
+                'max:50',
+                // unique = no puede repetirse
+                // where = PERO SOLO contar como único en estos registros
+                // ignore = EXCEPTO si es el mismo producto (en edición)
+                \Illuminate\Validation\Rule::unique('productos')
+                    ->ignore($id),
+            ],
+            
+            // NOMBRE
+            'nombre' => 'required|string|max:100',
+            // max:100 = máximo 100 caracteres
+            
+            // DESCRIPCIÓN (opcional)
+            'descripcion' => 'nullable|string|max:500',
+            // nullable = puede estar vacío
+            
+            // IMAGEN (opcional)
             'imagen' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'precio_unitario' => 'required|numeric|between:0,99999999.99',
-            'stock' => 'required|numeric'
+            // image = debe ser una imagen
+            // mimes = solo estos formatos
+            // max:2048 = máximo 2MB (en kilobytes)
+            
+            // PRECIO
+            'precio_unitario' => 'required|numeric|min:0|max:999999.99',
+            // numeric = número (puede tener decimales)
+            // min:0 = no puede ser negativo
+            // max = cantidad máxima permitida
+            
+            // STOCK
+            'stock' => 'required|numeric|min:0',
+            // min:0 = no puede ser negativo
         ]);
     }
 

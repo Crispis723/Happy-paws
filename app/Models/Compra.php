@@ -24,12 +24,17 @@ class Compra extends Model
         'estado'
     ];
 
+    // Asegura que 'fecha' se maneje como instancia de Carbon
+    protected $casts = [
+        'fecha' => 'datetime',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function proveedor()
+    public function proveedor()   // al tener un solo proveedor
     {
         return $this->belongsTo(Proveedor::class, 'proveedor_id');
     }
@@ -39,7 +44,7 @@ class Compra extends Model
         return $this->belongsTo(ComprobanteTipo::class, 'comprobante_tipo_codigo', 'codigo');
     }
 
-    public function detalles()
+    public function detalles() //se realiza por que tiene muchos detalles
     {
         return $this->hasMany(CompraDetalle::class, 'compra_id');
     }

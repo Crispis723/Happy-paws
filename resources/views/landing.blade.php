@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Happy Paws - Clínica Veterinaria</title>
     <link rel="shortcut icon" href="{{asset('assets/favicon.ico')}}" type="image/x-icon">
-    <link rel="stylesheet" href="{{asset('css/colors.css')}}" />
-    <link rel="stylesheet" href="{{asset('css/landing.css')}}" />
-    <link rel="stylesheet" href="{{asset('css/auth-modal.css')}}" />
-    <link rel="stylesheet" href="{{asset('assets/bootstrap-icons-1.13.1/bootstrap-icons.min.css')}}" />
+    <link rel="stylesheet" href="{{ secure_asset('css/colors.css') }}" />
+    <link rel="stylesheet" href="{{ secure_asset('css/landing.css') }}" />
+    <link rel="stylesheet" href="{{ secure_asset('css/auth-modal.css') }}" />
+    <link rel="stylesheet" href="{{ secure_asset('assets/bootstrap-icons-1.13.1/bootstrap-icons.min.css') }}" />
   </head>
   <body>
     <!-- Header -->
